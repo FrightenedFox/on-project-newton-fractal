@@ -139,7 +139,7 @@ function points_fill_animation(
     exact_roots::AbstractArray;
     n::Int64=20,
     span::StepRangeLen=-2:0.0085:2,
-    filename::String="points_fill",
+    filename::String="media/points_fill",
     fps::Int64=4,
     dpi::Int64=200,
     ms::Number=0.5,
@@ -187,7 +187,7 @@ function points_cloud_animation(
     span::StepRangeLen=-2:0.5:2,
     xspan::Union{StepRangeLen,Nothing}=nothing,
     yspan::Union{StepRangeLen,Nothing}=nothing,
-    filename::String="points_cloud",
+    filename::String="media/points_cloud",
     dpi::Int64=200,
     xylims::Union{Tuple{Number,Number},Nothing}=nothing,
     ms::Number=3)
@@ -267,5 +267,5 @@ scatter(xs, ys, aspect_ratio=:equal)
 # Animacje poszukiwania punktami swoich pierwiastków. 
 # Wykonanie zajmuje 30-120 sekund
 # points_cloud_animation(func1, func1_exact_roots; n=20, fps=30, frames_per_move=15, dpi=100, span=-2:0.5:2, ms=3)
-# points_cloud_animation(func1, func1_exact_roots; n=20, fps=30, frames_per_move=15, dpi=100, ms=1.5, filename="points_explosion", xspan=-1.75:0.05:-1.25, yspan=0.75:0.05:1.25)
-# points_cloud_animation(func1, func1_exact_roots; n=20, fps=30, frames_per_move=15, dpi=100, ms=1.5, filename="points_no_explosion", xspan=-0.75:0.05:-0.25, yspan=1.25:0.05:1.75)
+# points_cloud_animation(func1, func1_exact_roots; n=20, fps=30, frames_per_move=15, dpi=100, ms=1.5, filename="media/points_explosion", xspan=-1.75:0.05:-1.25, yspan=0.75:0.05:1.25)
+# points_cloud_animation(func1, func1_exact_roots; n=20, fps=30, frames_per_move=15, dpi=100, ms=1.5, filename="media/points_no_explosion", xspan=-0.75:0.05:-0.25, yspan=1.25:0.05:1.75)
