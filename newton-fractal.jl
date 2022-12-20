@@ -29,6 +29,16 @@ function diff2(func::Function, x::Any; h::Float64=1e-4, args...)
 end
 
 
+"""Równanie stycznej do funkcji w punkcie x"""
+function tangent(func::Function, x0::Any; diff_func::Union{Function,Nothing}=nothing, args...)
+    if isnothing(diff_func)
+        return x -> diff(func, x0; args...) * (x - x0) + func(x0)
+    else
+        return x -> diff_func(x0) * (x - x0) + func(x0)
+    end
+end
+
+
 """Oblicza najkrótsze odległości z listy `points` do listy `centers` 
 i zwraca indeksy najbliższych środków do każdego punktu."""
 function points_to_centers(points::AbstractVector, centers::AbstractVector)
@@ -133,6 +143,40 @@ function calc_colors!(cloud::PointsCloud, centers::AbstractVector)
 end
 
 
+function root_searching_animation(
+    func::Function
+    ;
+    x0::Union{Number, Nothing}=nothing,
+    n::Int64=10,
+    diff_func::Union{Function, Nothing}=nothing,
+    xspan::StepRangeLen=-4:0.1:4,
+    yspan::Union{StepRangeLen, Nothing}=nothing,
+    filename::String="media/root_searching",
+    fps::Int64=1,
+    dpi::Int64=200)
+
+    if isnothing(yspan)
+        yspan = xspan
+    end
+    xlims = (minimum(collect(xspan)), maximum(collect(xspan)))
+    ylims = (minimum(collect(yspan)), maximum(collect(yspan)))
+    if isnothing(x0)
+        x0 = rand(xspan)
+    end
+    anim = @animate for i in 1:n
+        pl = plot(xlims=xlims, ylims=ylims, aspect_ratio=:equal, dpi=dpi, framestyle = :origin, legend=false)
+        title!(pl, "Krok algorytmu Newtnoa nr $i")
+        plot!(pl, xspan, func.(xspan))
+        plot!(pl, xspan, tangent(func, x0; diff_func=diff_func).(xspan))
+        next_x0 = newton_step(func, x0; diff_func=diff_func)
+        scatter!(pl, [next_x0], [0], ms=4, markerstrokewidth=0.1, markerstrokealpha=1.0)
+        plot!(pl, [x0, x0], [0, func(x0)], linestyle=:dash, markershape=:circle, 
+        ms=4, markerstrokewidth=0.1, markerstrokealpha=1.0)
+        x0 = next_x0
+    end     
+    gif(anim, "$filename.gif", fps=fps)   
+end
+
 """Rysuje animację kolorowania płaszczyzny względem liczby kroków algorytmu."""
 function points_fill_animation(
     func::Function,
@@ -144,11 +188,13 @@ function points_fill_animation(
     dpi::Int64=200,
     ms::Number=0.5,
     colors_list::Vector{String}=["red", "green", "blue", "yellow", "purple"])
+
     cloud = PointsCloud(vec([i + j * 1im for i in span, j in span]))
     calc_colors!(cloud, exact_roots)
     xylims = (minimum(collect(span)), maximum(collect(span)))
     anim = @animate for i in 1:n
         pl = plot(xlims=xylims, ylims=xylims, aspect_ratio=:equal, dpi=dpi)
+        title!(pl, "Krok algorytmu Newtona nr $i")
         for j in unique(cloud.colors)
             scatter!(
                 pl,
@@ -214,6 +260,7 @@ function points_cloud_animation(
             ys_vec = [func.(xs) for (func, xs) in zip(line_eq.(old_points, cloud.points), xs_vec)]
         end
         pl = plot(xlims=xylims, ylims=xylims, aspect_ratio=:equal, dpi=dpi)
+        title!(pl, "Krok algorytmu Newtona nr $i")
         scatter!(
             pl,
             [x_vec[j] for x_vec in xs_vec],
@@ -244,6 +291,9 @@ func1_exact_roots = [0.66236 + 0.56228im, 0.66236 - 0.56228im, 0.0 + 1.0im, 0.0 
 # Poszukiwanie pierwiastka funkcji za pomocą algorytmu Newtona
 newton_find_root(func1, 0.5; verbose=true)
 newton_find_root(func1, 0.5+2im; verbose=true)
+newton_find_root(func1, 1.3; verbose=true)
+
+root_searching_animation(func1; x0=1.3, n=45, fps=2, dpi=250, xspan=-4:0.01:4, filename="media/hq_root_searching")
 
 # Poszukiwanie punktów ekstremum funkcji za pomocą algorytmu Newtona.
 # Innymi słowy, poszukiwanie pierwiastków funkcji f'(z) == 0.
@@ -255,7 +305,7 @@ newton_optimise(0.5; func=func1, tol=1e-10, h=1e-10)
 
 # Animację kolorowania płaszczyzny względem liczby kroków algorytmu i najbliższego ostatecznego pierwiastka.
 # Wykonanie zajmuje 20-100 sekund
-# points_fill_animation(func1, func1_exact_roots; n=10, fps=2, dpi=100, span=-2:0.01:2, ms=1)
+points_fill_animation(func1, func1_exact_roots; n=15, fps=2, dpi=250, span=-2:0.001:2, ms=0.1)
 
 
 # Testowanie funkcji potrzebnych dla "rozpędzania i spowalniania" punktów
@@ -266,6 +316,6 @@ scatter(xs, ys, aspect_ratio=:equal)
 
 # Animacje poszukiwania punktami swoich pierwiastków. 
 # Wykonanie zajmuje 30-120 sekund
-# points_cloud_animation(func1, func1_exact_roots; n=20, fps=30, frames_per_move=15, dpi=100, span=-2:0.5:2, ms=3)
-# points_cloud_animation(func1, func1_exact_roots; n=20, fps=30, frames_per_move=15, dpi=100, ms=1.5, filename="media/points_explosion", xspan=-1.75:0.05:-1.25, yspan=0.75:0.05:1.25)
-# points_cloud_animation(func1, func1_exact_roots; n=20, fps=30, frames_per_move=15, dpi=100, ms=1.5, filename="media/points_no_explosion", xspan=-0.75:0.05:-0.25, yspan=1.25:0.05:1.75)
+points_cloud_animation(func1, func1_exact_roots; n=25, fps=30, frames_per_move=30, dpi=250, span=-2:0.5:2, ms=3)
+points_cloud_animation(func1, func1_exact_roots; n=30, fps=30, frames_per_move=30, dpi=250, ms=1.5, filename="media/points_explosion", xspan=-1.75:0.05:-1.25, yspan=0.75:0.05:1.25)
+points_cloud_animation(func1, func1_exact_roots; n=10, fps=30, frames_per_move=30, dpi=250, ms=1.5, filename="media/points_no_explosion", xspan=-0.75:0.05:-0.25, yspan=1.25:0.05:1.75)
