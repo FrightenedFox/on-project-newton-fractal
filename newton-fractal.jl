@@ -29,25 +29,13 @@ function diff2(func::Function, x::Any; h::Float64=1e-4, args...)
 end
 
 
-"""Równanie stycznej do funkcji w punkcie x"""
+"""Równanie stycznej do funkcji w punkcie x0"""
 function tangent(func::Function, x0::Any; diff_func::Union{Function,Nothing}=nothing, args...)
     if isnothing(diff_func)
         return x -> diff(func, x0; args...) * (x - x0) + func(x0)
     else
         return x -> diff_func(x0) * (x - x0) + func(x0)
     end
-end
-
-
-"""Oblicza najkrótsze odległości z listy `points` do listy `centers` 
-i zwraca indeksy najbliższych środków do każdego punktu."""
-function points_to_centers(points::AbstractVector, centers::AbstractVector)
-    closest_centers = Array{Int64,1}(undef, length(points))
-    for (index, point) in enumerate(points)
-        distances = abs.(centers .- point)
-        closest_centers[index] = indexin(min(distances...), distances)[1]
-    end
-    return closest_centers
 end
 
 
@@ -139,7 +127,12 @@ end
 
 """Przypisz każdemu punktowi kolor najbliższego rozwiązania."""
 function calc_colors!(cloud::PointsCloud, centers::AbstractVector)
-    cloud.colors = points_to_centers(cloud.points, centers)
+    closest_centers = Array{Int64,1}(undef, length(cloud.points))
+    for (index, point) in enumerate(cloud.points)
+        distances = abs.(centers .- point)
+        closest_centers[index] = indexin(min(distances...), distances)[1]
+    end
+    cloud.colors = closest_centers
 end
 
 
@@ -304,7 +297,7 @@ root_searching_animation(func1; x0=-0.95, n=9, fps=2, dpi=1050, xspan=-4:0.01:4,
 # Poszukiwanie punktów ekstremum funkcji za pomocą algorytmu Newtona.
 # Innymi słowy, poszukiwanie pierwiastków funkcji f'(z) == 0.
 newton_optimise(0.5; func=func1)
-newton_optimise(0.5; func=func1, verbose=true)
+newton_optimise(0.5; func=func1, verbose=true, tol=1e-10)
 newton_optimise(0.5; first_diff=x -> 5x^4 + 2x - 1)
 newton_optimise(0.5; first_diff=x -> 5x^4 + 2x - 1, second_diff=x -> 20x^3 + 2)
 newton_optimise(0.5; func=func1, tol=1e-10, h=1e-10)
