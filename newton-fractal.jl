@@ -143,6 +143,7 @@ function calc_colors!(cloud::PointsCloud, centers::AbstractVector)
 end
 
 
+"""Rysuje animację poszukiwania pierwiastka równania metodą Newtona."""
 function root_searching_animation(
     func::Function
     ;
@@ -165,7 +166,7 @@ function root_searching_animation(
     end
     anim = @animate for i in 1:n
         pl = plot(xlims=xlims, ylims=ylims, aspect_ratio=:equal, dpi=dpi, framestyle = :origin, legend=false)
-        title!(pl, "Krok algorytmu Newtnoa nr $i")
+        title!(pl, "Krok algorytmu Newtnoa nr $(i-1)")
         plot!(pl, xspan, func.(xspan))
         plot!(pl, xspan, tangent(func, x0; diff_func=diff_func).(xspan))
         next_x0 = newton_step(func, x0; diff_func=diff_func)
@@ -176,6 +177,7 @@ function root_searching_animation(
     end     
     gif(anim, "$filename.gif", fps=fps)   
 end
+
 
 """Rysuje animację kolorowania płaszczyzny względem liczby kroków algorytmu."""
 function points_fill_animation(
@@ -194,7 +196,7 @@ function points_fill_animation(
     xylims = (minimum(collect(span)), maximum(collect(span)))
     anim = @animate for i in 1:n
         pl = plot(xlims=xylims, ylims=xylims, aspect_ratio=:equal, dpi=dpi)
-        title!(pl, "Krok algorytmu Newtona nr $i")
+        title!(pl, "Krok algorytmu Newtona nr $(i-1)")
         for j in unique(cloud.colors)
             scatter!(
                 pl,
@@ -260,7 +262,7 @@ function points_cloud_animation(
             ys_vec = [func.(xs) for (func, xs) in zip(line_eq.(old_points, cloud.points), xs_vec)]
         end
         pl = plot(xlims=xylims, ylims=xylims, aspect_ratio=:equal, dpi=dpi)
-        title!(pl, "Krok algorytmu Newtona nr $i")
+        title!(pl, "Krok algorytmu Newtona nr $(i-1)")
         scatter!(
             pl,
             [x_vec[j] for x_vec in xs_vec],
@@ -288,12 +290,16 @@ end
 func1(z) = z^5 + z^2 - z + 1
 func1_exact_roots = [0.66236 + 0.56228im, 0.66236 - 0.56228im, 0.0 + 1.0im, 0.0 - 1.0im, -1.32472 + 0.0im]
 
+plot(-2:0.01:2, func1.(-2:0.01:2), xlims=(-4, 4), ylims=(-1.5, 3.5), framestyle = :origin, label="f(x)", aspect_ratio=:equal)
+
 # Poszukiwanie pierwiastka funkcji za pomocą algorytmu Newtona
-newton_find_root(func1, 0.5; verbose=true)
+newton_find_root(func1, 0.5; verbose=true, tol=1e-10)
 newton_find_root(func1, 0.5+2im; verbose=true)
 newton_find_root(func1, 1.3; verbose=true)
 
-root_searching_animation(func1; x0=1.3, n=45, fps=2, dpi=250, xspan=-4:0.01:4, filename="media/hq_root_searching")
+# Animacja poszukiwania pierwiastków metodą Newtona
+root_searching_animation(func1; x0=1.3, n=45, fps=2, dpi=100, xspan=-4:0.01:4, filename="media/root_searching")
+root_searching_animation(func1; x0=-0.95, n=9, fps=2, dpi=1050, xspan=-4:0.01:4, filename="media/root_searching_2")
 
 # Poszukiwanie punktów ekstremum funkcji za pomocą algorytmu Newtona.
 # Innymi słowy, poszukiwanie pierwiastków funkcji f'(z) == 0.
@@ -305,17 +311,15 @@ newton_optimise(0.5; func=func1, tol=1e-10, h=1e-10)
 
 # Animację kolorowania płaszczyzny względem liczby kroków algorytmu i najbliższego ostatecznego pierwiastka.
 # Wykonanie zajmuje 20-100 sekund
-points_fill_animation(func1, func1_exact_roots; n=15, fps=2, dpi=250, span=-2:0.001:2, ms=0.1)
-
+points_fill_animation(func1, func1_exact_roots; n=15, fps=2, dpi=100, span=-2:0.01:2, ms=1)
 
 # Testowanie funkcji potrzebnych dla "rozpędzania i spowalniania" punktów
 xs = scaled_xs(1im, 3-1im).(0:0.05:1)
 ys = line_eq(1im, 3-1im).(xs)
 scatter(xs, ys, aspect_ratio=:equal)
 
-
 # Animacje poszukiwania punktami swoich pierwiastków. 
 # Wykonanie zajmuje 30-120 sekund
-points_cloud_animation(func1, func1_exact_roots; n=25, fps=30, frames_per_move=30, dpi=250, span=-2:0.5:2, ms=3)
-points_cloud_animation(func1, func1_exact_roots; n=30, fps=30, frames_per_move=30, dpi=250, ms=1.5, filename="media/points_explosion", xspan=-1.75:0.05:-1.25, yspan=0.75:0.05:1.25)
-points_cloud_animation(func1, func1_exact_roots; n=10, fps=30, frames_per_move=30, dpi=250, ms=1.5, filename="media/points_no_explosion", xspan=-0.75:0.05:-0.25, yspan=1.25:0.05:1.75)
+points_cloud_animation(func1, func1_exact_roots; n=15, fps=30, frames_per_move=15, dpi=100, span=-2:0.5:2, ms=3)
+points_cloud_animation(func1, func1_exact_roots; n=20, fps=30, frames_per_move=15, dpi=100, ms=1.5, filename="media/points_explosion", xspan=-1.75:0.05:-1.25, yspan=0.75:0.05:1.25)
+points_cloud_animation(func1, func1_exact_roots; n=5, fps=30, frames_per_move=15, dpi=100, ms=1.5, filename="media/points_no_explosion", xspan=-0.75:0.05:-0.25, yspan=1.25:0.05:1.75)
