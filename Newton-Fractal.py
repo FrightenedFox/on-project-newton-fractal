@@ -1,10 +1,11 @@
 import streamlit as st
 
+
 def main():
     st.markdown("# Wstęga Newtona")
-    
+
     st.markdown("""
-    Projekt z przedmiotu Optymalizacja Nieliniowa. /
+    Projekt z przedmiotu Optymalizacja Nieliniowa. \
         
     Autor: Vitalii Morskyi \
         
@@ -14,12 +15,12 @@ def main():
     ### Wprowadzenie
     Przyjmijmy, że potrzebujemy znaleźć rozwiązania równania
     """)
-    
+
     st.latex(r"f(x) = 0")
     st.markdown("gdzie $f(x)$ - dowolny wielomian. Dla przykładu weźmy")
-    
+
     st.latex(r"f(x) = x^5 + x^2 - x + 1 = (x^2 + 1)(x^3-x+1)")
-    
+
     st.markdown("Zobaczmy jak wygląda wykres funkcji $f(x)$:")
 
     st.image("media/function_plot.png", caption="Wykres funkcji f(x).")
@@ -28,8 +29,7 @@ def main():
         st.code("""using Plots
 func1(z) = z^5 + z^2 - z + 1
 plot(-2:0.01:2, func1.(-2:0.01:2), xlims=(-4, 4), ylims=(-1.5, 3.5), framestyle = :origin, label="f(x)", aspect_ratio=:equal)
-        """, 
-        language="julia")
+        """, language="julia")
 
     st.markdown("""
     Jak widzimy, równanie $f(x) = 0$ ma tylko jedno rozwiązanie rzeczywiste w punkcie  $x \\approx -1.32472$.
@@ -61,10 +61,11 @@ plot(-2:0.01:2, func1.(-2:0.01:2), xlims=(-4, 4), ylims=(-1.5, 3.5), framestyle 
     Wiemy jednak, że w przestrzeni liczb zespolonych istnieją wszystkie 5 rozwiązań danego równania. Spróbujmy więc rozwiązać
     to równanie metodą Newtona na przestrzeni liczb zespolonych. 
 
-    Niestety nie możemy pokazać wykresu funkcji $f(x)$ w przestrzeni liczb zespolonych, ponieważ wymagałoby to użycia czterech 
-    wymiarów. Możemy natomiast pokazać jak przesuwa się $x$ z każdym krokiem algorytmu w przestrzeni liczb zespolonych. 
-    W poniższej animacji przedstawione są poszczególne kroki poszukiwania pierwiastków równania $f(x) = 0$ dla pewnego zbioru 
+    Niestety nie możemy pokazać wykresu funkcji $f(x)$ w przestrzeni liczb zespolonych, ponieważ wymagałoby to użycia czterech
+    wymiarów. Możemy natomiast pokazać, jak przesuwa się $x$ w przestrzeni liczb zespolonych z każdym krokiem algorytmu.
+    W poniższej animacji przedstawione są poszczególne kroki poszukiwania pierwiastków równania $f(x) = 0$ dla pewnego zbioru
     liczb zespolonych. 
+ 
     """)
 
     st.video(open("media/Hq Points Cloud.m4v", "rb").read())
@@ -103,7 +104,7 @@ plot(-2:0.01:2, func1.(-2:0.01:2), xlims=(-4, 4), ylims=(-1.5, 3.5), framestyle 
     Analogicznie do algorytmu poszukiwania pierwiastków równania możemy szukać jego minima i maksima lokalne. 
     Wystarczy po prostu szukać punktów, w których pierwsza pochodna funkcji jest równa zero. Czyli algorytm Newtona dla 
     poszukiwania minimów i maksimów funkcji zapisujemy następująco:""")
-    
+
     st.latex(r"x_{n+1} = x_{n} - \frac{f'(x)}{f''(x)}")
 
     st.markdown("""Poszukiwanie minimum lokalnego funkcji metodą Newtona, zaczynając od punktu $x=0.5$ 
@@ -173,7 +174,6 @@ ys = line_eq(1im, 3-1im).(xs)
 scatter(xs, ys, aspect_ratio=:equal)
         """, language="julia")
 
-
     st.markdown("""
     #### Pochodne numeryczne
     
@@ -223,7 +223,7 @@ end
     1. `newton_step` - oblicza poszczególny krok algorytmu.
     2. `newton_find_roots` - poszukuje pierwiastków równania $f(x) = 0$.
     3. `newton_optimise` - poszukuje punkty, w których pochodna funkcji $f'(x) = 0$.
-    """)    
+    """)
     with st.expander(label="Funkcje powiązane z algorytmem Newtona"):
         st.code("""
 function newton_step(func::Function, x::Any; diff_func::Union{Function,Nothing}=nothing, args...)
@@ -280,7 +280,7 @@ function newton_optimise(x::Any;
     end
 end
         """, language="julia")
-    
+
     st.markdown("""
     #### Chmura punktów 
 
@@ -320,7 +320,7 @@ function calc_colors!(cloud::PointsCloud, centers::AbstractVector)
     cloud.colors = closest_centers
 end
         """, language="julia")
-    
+
     st.markdown("""
     #### Funkcje animacji
 

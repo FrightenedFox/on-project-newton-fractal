@@ -54,7 +54,8 @@ end
 """Zwraca punkt x, w którym funkcja jest równa 0. Opiera się na algorytmie Newtona.
 Possible args: h::Float64
 """
-function newton_find_root(func::Function, x::Any; tol::Float64=1e-3, verbose::Bool=false, max_steps::Number=1e3, args...)
+function newton_find_root(func::Function, x::Any;
+                          tol::Float64=1e-3, verbose::Bool=false, max_steps::Number=1e3, args...)
     newx = undef
     iteration = 0
     if verbose & isa(x, Complex)
@@ -66,7 +67,8 @@ function newton_find_root(func::Function, x::Any; tol::Float64=1e-3, verbose::Bo
         newx = newton_step(func, x; args...)
         iteration += 1
         if verbose & isa(x, Complex)
-            @printf("[Iteracja = %3d] [x = %10.5f + i(%10.5f)] [newx = %10.5f + i(%10.5f)]\n", iteration, real(x), imag(x), real(newx), imag(newx))
+            @printf("[Iteracja = %3d] [x = %10.5f + i(%10.5f)] [newx = %10.5f + i(%10.5f)]\n",
+                    iteration, real(x), imag(x), real(newx), imag(newx))
         elseif verbose
             @printf("[Iteracja = %3d] [x = %10.5f] [newx =  %10.5f]\n", iteration, x, newx)
         end
@@ -245,7 +247,8 @@ function points_cloud_animation(
         xylims = (minimum(collect(span)), maximum(collect(span)))
     end
     uniform_x_step = 1 / (frames_per_move - 1)
-    xs_vec, ys_vec = Vector{Vector{Float64}}(undef, length(cloud.points)), Vector{Vector{Float64}}(undef, length(cloud.points))
+    xs_vec = Vector{Vector{Float64}}(undef, length(cloud.points))
+    ys_vec = Vector{Vector{Float64}}(undef, length(cloud.points))
     anim = @animate for i in 1:n, j in 1:frames_per_move
         if j == 1
             old_points = cloud.points
@@ -283,7 +286,8 @@ end
 func1(z) = z^5 + z^2 - z + 1
 func1_exact_roots = [0.66236 + 0.56228im, 0.66236 - 0.56228im, 0.0 + 1.0im, 0.0 - 1.0im, -1.32472 + 0.0im]
 
-plot(-2:0.01:2, func1.(-2:0.01:2), xlims=(-4, 4), ylims=(-1.5, 3.5), framestyle = :origin, label="f(x)", aspect_ratio=:equal)
+plot(-2:0.01:2, func1.(-2:0.01:2), xlims=(-4, 4), ylims=(-1.5, 3.5),
+     framestyle = :origin, label="f(x)", aspect_ratio=:equal)
 
 # Poszukiwanie pierwiastka funkcji za pomocą algorytmu Newtona
 newton_find_root(func1, 0.5; verbose=true, tol=1e-10)
@@ -314,5 +318,7 @@ scatter(xs, ys, aspect_ratio=:equal)
 # Animacje poszukiwania punktami swoich pierwiastków. 
 # Wykonanie zajmuje 30-120 sekund
 points_cloud_animation(func1, func1_exact_roots; n=15, fps=30, frames_per_move=15, dpi=100, span=-2:0.5:2, ms=3)
-points_cloud_animation(func1, func1_exact_roots; n=20, fps=30, frames_per_move=15, dpi=100, ms=1.5, filename="media/points_explosion", xspan=-1.75:0.05:-1.25, yspan=0.75:0.05:1.25)
-points_cloud_animation(func1, func1_exact_roots; n=5, fps=30, frames_per_move=15, dpi=100, ms=1.5, filename="media/points_no_explosion", xspan=-0.75:0.05:-0.25, yspan=1.25:0.05:1.75)
+points_cloud_animation(func1, func1_exact_roots; n=20, fps=30, frames_per_move=15, dpi=100, ms=1.5,
+                       filename="media/points_explosion", xspan=-1.75:0.05:-1.25, yspan=0.75:0.05:1.25)
+points_cloud_animation(func1, func1_exact_roots; n=5, fps=30, frames_per_move=15, dpi=100, ms=1.5,
+                       filename="media/points_no_explosion", xspan=-0.75:0.05:-0.25, yspan=1.25:0.05:1.75)
