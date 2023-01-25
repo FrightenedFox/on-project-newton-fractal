@@ -1,0 +1,5 @@
+numpy
+autograd
+scipy
+plotly
+streamlit
